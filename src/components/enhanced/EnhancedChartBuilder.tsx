@@ -462,7 +462,7 @@ const EnhancedChartBuilder: React.FC = () => {
                     }}
                   >
                     {type === 'horizontalBar' ? 'H-Bar' : 
-                     type === 'doughnut' ? '🍩' : 
+                     type === 'doughnut' ? 'Donut' : 
                      type.charAt(0).toUpperCase() + type.slice(1)}
                   </button>
                 ))}

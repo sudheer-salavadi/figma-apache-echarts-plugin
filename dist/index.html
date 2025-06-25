@@ -353,7 +353,29 @@
           <div class="control-section">
             <h3>📊 Data Series</h3>
             <div id="series-list"></div>
-            <button class="add-series-btn" id="add-series">+ Add Series</button>
+            <div style="display: flex; gap: 8px;">
+              <button class="add-series-btn" id="add-series" style="flex: 1;">+ Add Series</button>
+              <button class="add-series-btn" id="randomize-data" style="flex: 1; background: #f0f0f0; color: #333;">🎲 Randomize</button>
+            </div>
+          </div>
+
+          <!-- Axis Controls -->
+          <div class="control-section">
+            <h3>📐 Axis Controls</h3>
+            <div class="options-grid">
+              <label class="checkbox-group">
+                <input type="checkbox" id="show-x-axis" checked> Show X Axis
+              </label>
+              <label class="checkbox-group">
+                <input type="checkbox" id="show-y-axis" checked> Show Y Axis
+              </label>
+              <label class="checkbox-group">
+                <input type="checkbox" id="show-x-lines"> X Grid
+              </label>
+              <label class="checkbox-group">
+                <input type="checkbox" id="show-y-lines"> Y Grid
+              </label>
+            </div>
           </div>
 
           <!-- Chart Options -->
@@ -367,15 +389,20 @@
                 <input type="checkbox" id="stack-series"> Stack Series
               </label>
               <label class="checkbox-group">
-                <input type="checkbox" id="show-x-lines"> X Grid
-              </label>
-              <label class="checkbox-group">
-                <input type="checkbox" id="show-y-lines"> Y Grid
+                <input type="checkbox" id="dark-mode"> 🌙 Dark Mode
               </label>
             </div>
-            <div class="range-control">
-              <label>Chart Size: <span id="chart-size-value">600</span>px</label>
-              <input type="range" id="chart-size" min="300" max="800" step="50" value="600">
+            <div class="grid-2">
+              <div>
+                <label style="display: block; font-size: 12px; margin-bottom: 4px;">Width (px)</label>
+                <input type="number" id="chart-width" min="300" max="1200" value="600" 
+                  style="width: 100%; padding: 6px; border: 1px solid #ccc; border-radius: 4px;">
+              </div>
+              <div>
+                <label style="display: block; font-size: 12px; margin-bottom: 4px;">Height (px)</label>
+                <input type="number" id="chart-height" min="200" max="900" value="450" 
+                  style="width: 100%; padding: 6px; border: 1px solid #ccc; border-radius: 4px;">
+              </div>
             </div>
           </div>
         </div>
@@ -387,6 +414,7 @@
       let chart = null;
       let isMinimized = false;
       let currentChartType = 'line';
+      let isDarkMode = false;
       let seriesData = [
         { name: 'Sales', type: 'bar', data: [120, 200, 150, 80, 70, 110], color: '#5470c6', visible: true },
         { name: 'Profit', type: 'line', data: [20, 50, 30, 15, 10, 25], color: '#91cc75', visible: true }
@@ -433,31 +461,36 @@
         document.getElementById('legend-position').addEventListener('change', updateChart);
         document.getElementById('legend-align').addEventListener('change', updateChart);
 
-        // Options
-        document.getElementById('show-data-labels').addEventListener('change', updateChart);
-        document.getElementById('stack-series').addEventListener('change', updateChart);
+        // Axis controls
+        document.getElementById('show-x-axis').addEventListener('change', updateChart);
+        document.getElementById('show-y-axis').addEventListener('change', updateChart);
         document.getElementById('show-x-lines').addEventListener('change', updateChart);
         document.getElementById('show-y-lines').addEventListener('change', updateChart);
 
-        // Chart size
-        document.getElementById('chart-size').addEventListener('input', (e) => {
-          document.getElementById('chart-size-value').textContent = e.target.value;
-          updateChartSize(parseInt(e.target.value));
-        });
+        // Options
+        document.getElementById('show-data-labels').addEventListener('change', updateChart);
+        document.getElementById('stack-series').addEventListener('change', updateChart);
+        document.getElementById('dark-mode').addEventListener('change', toggleDarkMode);
+
+        // Chart dimensions
+        document.getElementById('chart-width').addEventListener('input', updateChartDimensions);
+        document.getElementById('chart-height').addEventListener('input', updateChartDimensions);
 
         // Header buttons
         document.getElementById('export-btn').addEventListener('click', exportChart);
         document.getElementById('minimize-btn').addEventListener('click', toggleMinimize);
         
-        // Add series button
+        // Series buttons
         document.getElementById('add-series').addEventListener('click', addSeries);
+        document.getElementById('randomize-data').addEventListener('click', randomizeAllData);
       }
 
       function initializeChart() {
         if (typeof echarts === 'undefined') return;
         
         const container = document.getElementById('chart-container');
-        chart = echarts.init(container, null, { renderer: 'svg' });
+        const theme = isDarkMode ? 'dark' : null;
+        chart = echarts.init(container, theme, { renderer: 'svg' });
         updateChart();
         
         // Handle window resize
@@ -478,6 +511,8 @@
         const legendPosition = document.getElementById('legend-position').value;
         const legendAlign = document.getElementById('legend-align').value;
         
+        const showXAxis = document.getElementById('show-x-axis').checked;
+        const showYAxis = document.getElementById('show-y-axis').checked;
         const showDataLabels = document.getElementById('show-data-labels').checked;
         const stackSeries = document.getElementById('stack-series').checked;
         const showXLines = document.getElementById('show-x-lines').checked;
@@ -537,12 +572,14 @@
         const isHorizontalBar = currentChartType === 'horizontalBar';
         
         option.xAxis = {
+          show: showXAxis,
           type: isHorizontalBar ? 'value' : 'category',
           data: isHorizontalBar ? undefined : categories,
           splitLine: { show: showXLines }
         };
         
         option.yAxis = {
+          show: showYAxis,
           type: isHorizontalBar ? 'category' : 'value',
           data: isHorizontalBar ? categories : undefined,
           splitLine: { show: showYLines }
@@ -587,13 +624,35 @@
         chart.setOption(option, true);
       }
 
-      function updateChartSize(size) {
+      function updateChartDimensions() {
+        const width = parseInt(document.getElementById('chart-width').value);
+        const height = parseInt(document.getElementById('chart-height').value);
         const container = document.getElementById('chart-container');
-        container.style.maxWidth = `${size}px`;
-        container.style.maxHeight = `${size * 0.75}px`;
+        container.style.maxWidth = `${width}px`;
+        container.style.maxHeight = `${height}px`;
         if (chart) {
           setTimeout(() => chart.resize(), 100);
         }
+      }
+
+      function toggleDarkMode() {
+        isDarkMode = document.getElementById('dark-mode').checked;
+        if (chart) {
+          chart.dispose();
+          initializeChart();
+        }
+      }
+
+      function randomizeAllData() {
+        seriesData.forEach(series => {
+          series.data = generateRandomData(categories.length);
+        });
+        renderSeriesList();
+        updateChart();
+      }
+
+      function generateRandomData(length, min = 10, max = 200) {
+        return Array.from({ length }, () => Math.floor(Math.random() * (max - min + 1)) + min);
       }
 
       function renderSeriesList() {
@@ -614,6 +673,7 @@
                 <option value="area" ${series.type === 'area' ? 'selected' : ''}>Area</option>
                 <option value="scatter" ${series.type === 'scatter' ? 'selected' : ''}>Scatter</option>
               </select>
+              <button onclick="randomizeSeries(${index})" title="Randomize data">🎲</button>
               <button onclick="removeSeries(${index})">×</button>
             </div>
             <textarea class="series-data" placeholder="[10, 20, 30, 40, 50]" 
@@ -678,6 +738,12 @@
         updateChart();
       }
 
+      function randomizeSeries(index) {
+        seriesData[index].data = generateRandomData(categories.length);
+        renderSeriesList();
+        updateChart();
+      }
+
       function toggleMinimize() {
         isMinimized = !isMinimized;
         const mainContent = document.getElementById('main-content');
@@ -719,9 +785,8 @@
         
         try {
           const svgData = chart.renderToSVGString();
-          const container = document.getElementById('chart-container');
-          const width = container.offsetWidth;
-          const height = container.offsetHeight;
+          const width = parseInt(document.getElementById('chart-width').value);
+          const height = parseInt(document.getElementById('chart-height').value);
           
           if (typeof parent !== 'undefined' && parent !== window) {
             parent.postMessage({

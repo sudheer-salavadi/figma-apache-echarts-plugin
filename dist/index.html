@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Advanced ECharts Builder</title>
+    <title>Echarts Builder For Figma</title>
     <style>
       * {
         box-sizing: border-box;
@@ -274,10 +274,10 @@
     <div class="main-container">
       <!-- Header -->
       <div class="header">
-        <h2>📊 Advanced ECharts Builder</h2>
+        <h2>📊 Echarts Builder For Figma</h2>
         <div class="header-buttons">
           <button id="export-btn" class="btn btn-primary">Export to Figma</button>
-          <button id="minimize-btn" class="btn btn-outline">🔽 Minimize</button>
+          <button id="minimize-btn" class="btn btn-outline">🔽 Collapse</button>
         </div>
       </div>
 
@@ -298,7 +298,7 @@
               <button class="chart-type-btn" data-type="bar">Bar</button>
               <button class="chart-type-btn" data-type="horizontalBar">H-Bar</button>
               <button class="chart-type-btn" data-type="pie">Pie</button>
-              <button class="chart-type-btn" data-type="doughnut">🍩</button>
+              <button class="chart-type-btn" data-type="doughnut">Donut</button>
               <button class="chart-type-btn" data-type="area">Area</button>
               <button class="chart-type-btn" data-type="scatter">Scatter</button>
               <button class="chart-type-btn" data-type="mixed">Mixed</button>
@@ -378,6 +378,42 @@
             </div>
           </div>
 
+          <!-- Chart-Specific Controls -->
+          <div class="control-section" id="bar-controls" style="display: none;">
+            <h3>📊 Bar Chart Options</h3>
+            <div class="grid-2">
+              <div>
+                <label style="display: block; font-size: 12px; margin-bottom: 4px;">Border Radius</label>
+                <input type="number" id="bar-border-radius" min="0" max="20" value="0" 
+                  style="width: 100%; padding: 6px; border: 1px solid #ccc; border-radius: 4px;">
+              </div>
+              <div>
+                <label style="display: block; font-size: 12px; margin-bottom: 4px;">Corner Style</label>
+                <select id="bar-corner-style" style="width: 100%; padding: 6px; border: 1px solid #ccc; border-radius: 4px;">
+                  <option value="all">All Corners</option>
+                  <option value="top">Top Only</option>
+                  <option value="bottom">Bottom Only</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="control-section" id="doughnut-controls" style="display: none;">
+            <h3>🍩 Doughnut Options</h3>
+            <div class="grid-2">
+              <div>
+                <label style="display: block; font-size: 12px; margin-bottom: 4px;">Inner Radius (%)</label>
+                <input type="number" id="doughnut-inner-radius" min="10" max="80" value="40" 
+                  style="width: 100%; padding: 6px; border: 1px solid #ccc; border-radius: 4px;">
+              </div>
+              <div>
+                <label style="display: block; font-size: 12px; margin-bottom: 4px;">Outer Radius (%)</label>
+                <input type="number" id="doughnut-outer-radius" min="30" max="90" value="70" 
+                  style="width: 100%; padding: 6px; border: 1px solid #ccc; border-radius: 4px;">
+              </div>
+            </div>
+          </div>
+
           <!-- Chart Options -->
           <div class="control-section">
             <h3>⚙️ Options</h3>
@@ -387,6 +423,9 @@
               </label>
               <label class="checkbox-group">
                 <input type="checkbox" id="stack-series"> Stack Series
+              </label>
+              <label class="checkbox-group">
+                <input type="checkbox" id="smooth-line"> Smooth Lines
               </label>
               <label class="checkbox-group">
                 <input type="checkbox" id="dark-mode"> 🌙 Dark Mode
@@ -429,6 +468,7 @@
           setupEventListeners();
           initializeChart();
           renderSeriesList();
+          updateChartSpecificControls();
           console.log('✅ Plugin initialized successfully');
         };
         script.onerror = function() {
@@ -446,6 +486,7 @@
             document.querySelectorAll('.chart-type-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             currentChartType = btn.dataset.type;
+            updateChartSpecificControls();
             updateChart();
           });
         });
@@ -470,7 +511,14 @@
         // Options
         document.getElementById('show-data-labels').addEventListener('change', updateChart);
         document.getElementById('stack-series').addEventListener('change', updateChart);
+        document.getElementById('smooth-line').addEventListener('change', updateChart);
         document.getElementById('dark-mode').addEventListener('change', toggleDarkMode);
+
+        // Chart-specific controls
+        document.getElementById('bar-border-radius').addEventListener('input', updateChart);
+        document.getElementById('bar-corner-style').addEventListener('change', updateChart);
+        document.getElementById('doughnut-inner-radius').addEventListener('input', updateChart);
+        document.getElementById('doughnut-outer-radius').addEventListener('input', updateChart);
 
         // Chart dimensions
         document.getElementById('chart-width').addEventListener('input', updateChartDimensions);
@@ -515,8 +563,15 @@
         const showYAxis = document.getElementById('show-y-axis').checked;
         const showDataLabels = document.getElementById('show-data-labels').checked;
         const stackSeries = document.getElementById('stack-series').checked;
+        const smoothLine = document.getElementById('smooth-line').checked;
         const showXLines = document.getElementById('show-x-lines').checked;
         const showYLines = document.getElementById('show-y-lines').checked;
+
+        // Chart-specific options
+        const barBorderRadius = parseInt(document.getElementById('bar-border-radius').value);
+        const barCornerStyle = document.getElementById('bar-corner-style').value;
+        const doughnutInnerRadius = parseInt(document.getElementById('doughnut-inner-radius').value);
+        const doughnutOuterRadius = parseInt(document.getElementById('doughnut-outer-radius').value);
 
         const option = {
           title: showTitle ? {
@@ -557,9 +612,16 @@
               itemStyle: { color: seriesData[i % seriesData.length]?.color || firstSeries.color }
             }));
             
+            let radius;
+            if (currentChartType === 'doughnut') {
+              radius = [`${doughnutInnerRadius}%`, `${doughnutOuterRadius}%`];
+            } else {
+              radius = '60%';
+            }
+            
             option.series = [{
               type: 'pie',
-              radius: currentChartType === 'doughnut' ? ['40%', '70%'] : '60%',
+              radius: radius,
               center: ['50%', '50%'],
               data: pieData,
               label: { show: showDataLabels, formatter: '{b}: {c} ({d}%)' }
@@ -588,7 +650,8 @@
         option.series = seriesData
           .filter(series => series.visible)
           .map((series) => {
-            let seriesType = currentChartType !== 'mixed' ? currentChartType : series.type;
+            // Allow individual series types for all chart types, not just mixed
+            let seriesType = series.type;
             const echartsType = seriesType === 'horizontalBar' ? 'bar' : 
                               seriesType === 'area' ? 'line' : seriesType;
             
@@ -600,9 +663,22 @@
               lineStyle: { color: series.color },
               label: { show: showDataLabels, position: echartsType === 'line' ? 'top' : 'inside' }
             };
+
+            // Handle bar border radius
+            if (echartsType === 'bar' && barBorderRadius > 0) {
+              let borderRadius;
+              if (barCornerStyle === 'top') {
+                borderRadius = isHorizontalBar ? [0, barBorderRadius, barBorderRadius, 0] : [barBorderRadius, barBorderRadius, 0, 0];
+              } else if (barCornerStyle === 'bottom') {
+                borderRadius = isHorizontalBar ? [barBorderRadius, 0, 0, barBorderRadius] : [0, 0, barBorderRadius, barBorderRadius];
+              } else {
+                borderRadius = barBorderRadius;
+              }
+              seriesConfig.itemStyle.borderRadius = borderRadius;
+            }
             
             if (echartsType === 'line' || seriesType === 'area') {
-              seriesConfig.smooth = false;
+              seriesConfig.smooth = smoothLine;
               if (seriesType === 'area') {
                 seriesConfig.areaStyle = { color: series.color, opacity: 0.6 };
               }
@@ -653,6 +729,19 @@
 
       function generateRandomData(length, min = 10, max = 200) {
         return Array.from({ length }, () => Math.floor(Math.random() * (max - min + 1)) + min);
+      }
+
+      function updateChartSpecificControls() {
+        // Hide all specific controls first
+        document.getElementById('bar-controls').style.display = 'none';
+        document.getElementById('doughnut-controls').style.display = 'none';
+        
+        // Show relevant controls based on chart type
+        if (currentChartType === 'bar' || currentChartType === 'horizontalBar') {
+          document.getElementById('bar-controls').style.display = 'block';
+        } else if (currentChartType === 'doughnut') {
+          document.getElementById('doughnut-controls').style.display = 'block';
+        }
       }
 
       function renderSeriesList() {
@@ -752,7 +841,7 @@
         
         if (isMinimized) {
           mainContent.classList.add('hidden');
-          minimizeBtn.textContent = '🔼 Maximize';
+          minimizeBtn.textContent = '🔼 Expand';
           exportBtn.disabled = true;
           
           // Send message to Figma to resize
@@ -763,7 +852,7 @@
           }
         } else {
           mainContent.classList.remove('hidden');
-          minimizeBtn.textContent = '🔽 Minimize';
+          minimizeBtn.textContent = '🔽 Collapse';
           exportBtn.disabled = false;
           
           // Send message to Figma to resize

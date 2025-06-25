@@ -1,115 +1,137 @@
-# Advanced ECharts Figma Plugin
+# 📊 Echarts Builder For Figma
 
-A modern, React-based Figma plugin for creating and customizing ECharts with real-time preview and comprehensive configuration options.
+A powerful Figma plugin for creating interactive charts using Apache ECharts with a comprehensive visual editor.
 
-## Features
+## ✨ Features
 
-- **70/30 Layout**: Chart preview (70%) and controls panel (30%)
-- **Real-time Preview**: Live ECharts rendering with SVG output
-- **Smart Controls**: Conditional configuration panels with toggle switches
-- **Chart Types**: Line, Bar, Pie, Area, Scatter charts
-- **Full Customization**: Title, legend, grid, axes, series styling
-- **Figma Integration**: Direct SVG insertion into Figma canvas
-- **Modern Stack**: React 18 + TypeScript + Vite + Tailwind CSS
+### 📈 Chart Types
+- **Line Charts** - Simple and smooth line visualizations
+- **Bar Charts** - Vertical bar charts with multiple series support
+- **Horizontal Bar Charts** - Horizontal orientation for better label readability
+- **Pie Charts** - Circular data representation
+- **Doughnut Charts** - Pie charts with center hole
+- **Area Charts** - Filled line charts
+- **Scatter Charts** - Point-based data visualization
+- **Mixed Charts** - Combine different chart types in one visualization
 
-## Development
+### 🎨 Visual Controls
+- **Title Management** - Show/hide, alignment (left/center/right), positioning (top/bottom)
+- **Legend Controls** - Position (top/bottom/left/right), alignment options
+- **Axis Controls** - Show/hide X/Y axes, grid lines
+- **Dark Mode** - Built-in ECharts dark theme support
+- **Custom Dimensions** - Manual width/height input (300-1200px × 200-900px)
 
-```bash
-# Install dependencies
-npm install
+### 📊 Data Management
+- **Multi-Series Support** - Add unlimited data series
+- **Individual Series Controls** - Custom colors, types, visibility per series
+- **Data Randomization** - Generate random test data (global or per-series)
+- **Real-time Editing** - JSON data input with live preview
 
-# Start development server
-npm run dev
+### 🔧 Interface Features
+- **Minimize/Maximize** - Collapse to header-only view
+- **Export to Figma** - Direct SVG insertion into Figma canvas
+- **Responsive Design** - Adapts to plugin window size
+- **Black & White UI** - Clean, professional interface (except color pickers)
 
-# Build for production (includes plugin files)
-npm run build
+## 🚀 Installation
 
-# Build UI only (without plugin files)
-npm run build:ui
+1. **Download the plugin files**
+2. **Open Figma Desktop**
+3. **Go to Plugins → Development → Import plugin from manifest**
+4. **Select the `dist/manifest.json` file**
+5. **Run the plugin**
 
-# Copy plugin files to dist
-npm run copy-plugin-files
-
-# Lint code
-npm run lint
-```
-
-## Project Structure
-
-```
-src/
-├── components/
-│   ├── chart/
-│   │   └── ChartPreview.tsx       # ECharts rendering component
-│   ├── controls/
-│   │   ├── ControlPanel.tsx       # Main control panel
-│   │   └── sections/              # Individual control sections
-│   ├── layout/
-│   │   ├── MainLayout.tsx         # 70/30 layout
-│   │   └── Header.tsx             # Chart type selector + actions
-│   └── ui/                        # Reusable UI components
-├── lib/
-│   ├── chartConfig.ts             # ECharts configuration generator
-│   └── utils.ts                   # Utility functions
-├── stores/
-│   └── chartStore.ts              # Zustand state management
-├── types/
-│   └── chart.types.ts             # TypeScript interfaces
-└── index.css                      # Tailwind CSS + custom styles
-
-plugin/
-├── manifest.json                  # Figma plugin manifest (source)
-└── code.js                        # Figma plugin backend (source)
-```
-
-## Figma Plugin Files
+## 📁 Project Structure
 
 ```
-dist/
-├── manifest.json                  # Figma plugin manifest
-├── code.js                        # Figma plugin backend
-├── index.html                     # Plugin UI
-├── ui.js                          # Bundled React app
-└── ui.css                         # Bundled styles
+figma-echarts/
+├── dist/                    # Ready-to-use plugin files
+│   ├── index.html          # Main plugin UI (vanilla JS)
+│   ├── manifest.json       # Figma plugin manifest
+│   └── code.js            # Plugin backend code
+├── plugin/                 # Source plugin files
+│   ├── manifest.json      # Plugin configuration
+│   └── code.js           # Backend logic
+└── README.md
 ```
 
-## Usage in Figma
+## 🛠️ Development
 
-1. Import the plugin using `dist/manifest.json`
-2. Select chart type from the dropdown
-3. Configure chart using the control panel
-4. Click "SVG" or "PNG" to insert into Figma canvas
-5. Use "Copy SVG" to copy chart to clipboard
+This plugin is built with **vanilla JavaScript** for maximum compatibility and minimal dependencies.
 
-## Chart Configuration
+### Key Technologies
+- **ECharts 5.4.3** - Chart library loaded from CDN
+- **Vanilla JavaScript** - No build process required
+- **Figma Plugin API** - Native integration
+- **SVG Rendering** - Vector output for crisp charts
 
-### Conditional Controls
-- **Title**: Toggle + text, position, fonts, colors
-- **Legend**: Toggle + orientation, positioning
-- **Grid**: Toggle X/Y axis grid lines
-- **Axes**: Toggle X/Y axis visibility
-- **Series**: Colors, line styles, markers, smooth curves
-- **Background**: Toggle + custom background colors
+### Making Changes
 
-### Supported Chart Types
-- **Line Chart**: With markers, smooth curves, area fill
-- **Bar Chart**: Vertical bars with custom colors
-- **Pie Chart**: Circular charts with labels
-- **Area Chart**: Line charts with filled areas
-- **Scatter Plot**: Point-based data visualization
+1. **Edit UI**: Modify `dist/index.html` for interface changes
+2. **Edit Backend**: Modify `plugin/code.js` for Figma integration
+3. **Update Config**: Edit `plugin/manifest.json` for plugin settings
+4. **Copy Changes**: Run `cp plugin/* dist/` to sync changes
 
-## Technical Details
+### No Build Process Needed!
+Since this uses vanilla JavaScript, you can edit files directly and refresh the plugin in Figma.
 
-- **State Management**: Zustand for predictable state updates
-- **Chart Rendering**: ECharts with SVG renderer for crisp output
-- **Styling**: Tailwind CSS with shadcn/ui components
-- **Build Tool**: Vite for fast development and optimized builds
-- **Type Safety**: Full TypeScript coverage with strict mode
+## 🎯 Usage
 
-## Next Steps
+1. **Launch Plugin** in Figma
+2. **Select Chart Type** from the 8 available options
+3. **Configure Title & Legend** with positioning controls
+4. **Add/Edit Data Series** with custom colors and types
+5. **Adjust Appearance** with axis controls and dark mode
+6. **Set Dimensions** with manual width/height inputs
+7. **Export to Figma** as scalable SVG
 
-- [ ] PNG export functionality
-- [ ] Data import (CSV, JSON)
-- [ ] Extended chart types
-- [ ] Animation controls
-- [ ] Theme presets
+### Pro Tips
+- Use **🎲 Randomize** buttons to generate test data
+- **Mixed chart type** allows different series types in one chart
+- **Dark mode** provides professional chart themes
+- **Minimize** feature keeps plugin header visible while working
+
+## 🔧 Configuration
+
+### Chart Dimensions
+- Width: 300-1200px
+- Height: 200-900px
+- Real-time preview
+- SVG export at exact dimensions
+
+### Data Format
+Series data should be JSON arrays:
+```json
+[120, 200, 150, 80, 70, 110]
+```
+
+### Colors
+- Each series has individual color picker
+- Dark mode automatically adjusts colors
+- Professional color palette defaults
+
+## 📦 Dependencies
+
+**Runtime:**
+- ECharts 5.4.3 (loaded from CDN)
+- Modern browser with ES6 support
+
+**Development:**
+- None! Pure vanilla JavaScript
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Make your changes in `dist/index.html` or `plugin/code.js`
+3. Test in Figma
+4. Submit a pull request
+
+## 📄 License
+
+MIT License - feel free to use and modify for your projects.
+
+## 🌟 Credits
+
+- **ECharts** - Apache ECharts team for the excellent charting library
+- **Figma** - For the powerful plugin API
+- Built with ❤️ for the design community

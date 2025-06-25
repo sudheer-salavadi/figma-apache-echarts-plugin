@@ -331,6 +331,12 @@
         align-items: center;
         gap: 4px;
       }
+      .rotated-chart {
+          display: inline-block;
+          transform: rotate(90deg); 
+          font-size: 1.2em;
+          line-height: 1;
+        }
     </style>
   </head>
   <body>
@@ -357,14 +363,13 @@
           <div class="control-section">
             <h3>📈 Chart Type</h3>
             <div class="chart-types">
-              <button class="chart-type-btn active" data-type="line">Line</button>
-              <button class="chart-type-btn" data-type="bar">Bar</button>
-              <button class="chart-type-btn" data-type="horizontalBar">H-Bar</button>
-              <button class="chart-type-btn" data-type="pie">Pie</button>
-              <button class="chart-type-btn" data-type="doughnut">Donut</button>
-              <button class="chart-type-btn" data-type="area">Area</button>
-              <button class="chart-type-btn" data-type="scatter">Scatter</button>
-              <button class="chart-type-btn" data-type="mixed">Mixed</button>
+              <button class="chart-type-btn active" data-type="line">📈 Line</button>
+              <button class="chart-type-btn" data-type="bar">📊 Column</button>
+              <button class="chart-type-btn" data-type="horizontalBar"><span class="rotated-chart">📊</span> Bar</button>
+              <button class="chart-type-btn" data-type="area">🏞️ Area</button>
+              <button class="chart-type-btn" data-type="scatter">᠅ Scatter</button>
+              <button class="chart-type-btn" data-type="pie">◔ Pie</button>
+              <button class="chart-type-btn" data-type="doughnut">◎ Donut</button>
             </div>
           </div>
 

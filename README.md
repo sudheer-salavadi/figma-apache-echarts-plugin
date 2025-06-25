@@ -1,6 +1,6 @@
 # Echarts Builder For Figma
 
-Figma plugin to build real Apache ECharts with a visual editor and export them as SVGs to the canvas.
+A Figma plugin with a visual editor to create [Apache ECharts](https://echarts.apache.org/examples/en/index.html) and export them as SVGs directly to the canvas.
 
 [![Watch on YouTube](https://github.com/user-attachments/assets/86c6ba06-4bed-4a77-bd0f-9f17ee94048e)](https://www.youtube.com/watch?v=Qw_z4N0fAvw)
 

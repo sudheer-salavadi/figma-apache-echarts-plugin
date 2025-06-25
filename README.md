@@ -2,6 +2,11 @@
 
 Figma plugin to build real Apache ECharts with a visual editor and export them as SVGs to the canvas.
 
+[![Watch on YouTube](https://github.com/user-attachments/assets/86c6ba06-4bed-4a77-bd0f-9f17ee94048e)](https://www.youtube.com/watch?v=Qw_z4N0fAvw)
+
+<img width="1437" alt="image" src="https://github.com/user-attachments/assets/1bedf415-7e3e-4080-8e6c-8ef5910aa4ba" />
+<img width="1019" alt="image" src="https://github.com/user-attachments/assets/7555b213-47b2-4fdd-ad5d-5d549a498d4e" />
+
 
 
 ## ✨ Features

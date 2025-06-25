@@ -5,7 +5,7 @@
 figma.showUI(__html__, { 
   width: 1200, 
   height: 800,
-  themeColors: true 
+  themeColors: true
 });
 
 // Handle messages from the UI
@@ -27,6 +27,14 @@ figma.ui.onmessage = async (msg) => {
       case 'copy-svg':
         // SVG copying will be handled in the UI
         figma.notify('SVG copied to clipboard!');
+        break;
+      
+      case 'minimize':
+        figma.ui.resize(1200, 60); // Minimize to header height
+        break;
+        
+      case 'maximize':
+        figma.ui.resize(1200, 800); // Restore to full height
         break;
       
       case 'cancel':

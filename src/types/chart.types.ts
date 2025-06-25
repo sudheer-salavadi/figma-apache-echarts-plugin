@@ -1,4 +1,4 @@
-export type ChartType = 'line' | 'bar' | 'pie' | 'area' | 'scatter'
+export type ChartType = 'line' | 'bar' | 'horizontalBar' | 'pie' | 'doughnut' | 'area' | 'scatter' | 'mixed'
 
 export interface ChartDimensions {
   width: number

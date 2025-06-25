@@ -22,7 +22,8 @@ export default defineConfig({
             return 'ui.css'
           }
           return '[name].[ext]'
-        }
+        },
+        format: 'iife'
       }
     }
   },

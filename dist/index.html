@@ -4,10 +4,752 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Advanced ECharts Builder</title>
-    <script type="module" crossorigin src="./ui.js"></script>
-    <link rel="stylesheet" crossorigin href="./ui.css">
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      
+      body {
+        font-family: system-ui, -apple-system, sans-serif;
+        background: white;
+        overflow: hidden;
+        height: 100vh;
+      }
+      
+      .main-container {
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        min-width: 800px;
+      }
+      
+      .header {
+        background: white;
+        border-bottom: 1px solid #ddd;
+        padding: 16px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-shrink: 0;
+        min-height: 60px;
+      }
+      
+      .header h2 {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 600;
+      }
+      
+      .header-buttons {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+      }
+      
+      .btn {
+        padding: 8px 16px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 13px;
+        font-weight: 500;
+        border: none;
+      }
+      
+      .btn-primary {
+        background: #000;
+        color: white;
+      }
+      
+      .btn-primary:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+      }
+      
+      .btn-outline {
+        background: white;
+        color: #000;
+        border: 1px solid #000;
+      }
+      
+      .main-content {
+        display: flex;
+        flex: 1;
+        overflow: hidden;
+        min-height: 0;
+      }
+      
+      .chart-area {
+        flex: 7;
+        background: white;
+        border-right: 1px solid #ddd;
+        padding: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+      }
+      
+      .chart-container {
+        width: 100%;
+        height: 100%;
+        max-width: 600px;
+        max-height: 450px;
+        min-width: 300px;
+        min-height: 225px;
+        border: 1px solid #eee;
+        border-radius: 4px;
+      }
+      
+      .controls {
+        flex: 3;
+        background: #f9f9f9;
+        padding: 20px;
+        overflow-y: auto;
+        min-width: 350px;
+      }
+      
+      .control-section {
+        margin-bottom: 20px;
+      }
+      
+      .control-section h3 {
+        font-size: 14px;
+        margin-bottom: 8px;
+        color: #333;
+      }
+      
+      .chart-types {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 6px;
+      }
+      
+      .chart-type-btn {
+        padding: 8px;
+        text-align: center;
+        font-size: 10px;
+        border: 2px solid #ccc;
+        background: white;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+      
+      .chart-type-btn.active {
+        border-color: #000;
+        background: #f5f5f5;
+      }
+      
+      .input-group {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 8px;
+      }
+      
+      .input-group input,
+      .input-group select {
+        padding: 6px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 12px;
+      }
+      
+      .input-group input[type="text"] {
+        flex: 1;
+      }
+      
+      .checkbox-group {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 12px;
+        margin-bottom: 4px;
+      }
+      
+      .grid-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+      }
+      
+      .hidden {
+        display: none !important;
+      }
+      
+      .series-item {
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        padding: 8px;
+        margin-bottom: 8px;
+        background: white;
+      }
+      
+      .series-controls {
+        display: flex;
+        gap: 4px;
+        align-items: center;
+        margin-bottom: 4px;
+      }
+      
+      .series-controls input[type="text"] {
+        flex: 1;
+        padding: 4px;
+        font-size: 12px;
+      }
+      
+      .series-controls input[type="color"] {
+        width: 24px;
+        height: 24px;
+        border: none;
+        border-radius: 4px;
+      }
+      
+      .series-controls select {
+        padding: 4px;
+        font-size: 11px;
+      }
+      
+      .series-controls button {
+        padding: 4px 8px;
+        font-size: 11px;
+        background: white;
+        border: 1px solid #000;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+      
+      .series-data {
+        width: 100%;
+        height: 40px;
+        padding: 4px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 11px;
+        font-family: monospace;
+        resize: none;
+        margin-bottom: 4px;
+      }
+      
+      .series-options {
+        display: flex;
+        gap: 8px;
+        font-size: 11px;
+      }
+      
+      .add-series-btn {
+        width: 100%;
+        padding: 8px;
+        background: white;
+        border: 1px solid #000;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 12px;
+      }
+      
+      .options-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 8px;
+        font-size: 12px;
+      }
+      
+      .range-control {
+        margin-bottom: 8px;
+      }
+      
+      .range-control label {
+        display: block;
+        font-size: 12px;
+        margin-bottom: 4px;
+      }
+      
+      .range-control input[type="range"] {
+        width: 100%;
+      }
+    </style>
   </head>
   <body>
-    <div id="root"></div>
+    <div class="main-container">
+      <!-- Header -->
+      <div class="header">
+        <h2>📊 Advanced ECharts Builder</h2>
+        <div class="header-buttons">
+          <button id="export-btn" class="btn btn-primary">Export to Figma</button>
+          <button id="minimize-btn" class="btn btn-outline">🔽 Minimize</button>
+        </div>
+      </div>
+
+      <!-- Main Content -->
+      <div id="main-content" class="main-content">
+        <!-- Chart Area -->
+        <div class="chart-area">
+          <div id="chart-container" class="chart-container"></div>
+        </div>
+        
+        <!-- Controls -->
+        <div class="controls">
+          <!-- Chart Types -->
+          <div class="control-section">
+            <h3>📈 Chart Type</h3>
+            <div class="chart-types">
+              <button class="chart-type-btn active" data-type="line">Line</button>
+              <button class="chart-type-btn" data-type="bar">Bar</button>
+              <button class="chart-type-btn" data-type="horizontalBar">H-Bar</button>
+              <button class="chart-type-btn" data-type="pie">Pie</button>
+              <button class="chart-type-btn" data-type="doughnut">🍩</button>
+              <button class="chart-type-btn" data-type="area">Area</button>
+              <button class="chart-type-btn" data-type="scatter">Scatter</button>
+              <button class="chart-type-btn" data-type="mixed">Mixed</button>
+            </div>
+          </div>
+
+          <!-- Title Controls -->
+          <div class="control-section">
+            <h3>📝 Title</h3>
+            <div class="input-group">
+              <input type="text" id="chart-title" placeholder="Chart title" value="Multi-Series Chart">
+              <label class="checkbox-group">
+                <input type="checkbox" id="show-title" checked> Show
+              </label>
+            </div>
+            <div class="grid-2">
+              <select id="title-align">
+                <option value="left">Left</option>
+                <option value="center" selected>Center</option>
+                <option value="right">Right</option>
+              </select>
+              <select id="title-position">
+                <option value="top" selected>Top</option>
+                <option value="bottom">Bottom</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Legend Controls -->
+          <div class="control-section">
+            <h3>🏷️ Legend</h3>
+            <label class="checkbox-group">
+              <input type="checkbox" id="show-legend" checked> Show Legend
+            </label>
+            <div class="grid-2">
+              <select id="legend-position">
+                <option value="top">Top</option>
+                <option value="bottom" selected>Bottom</option>
+                <option value="left">Left</option>
+                <option value="right">Right</option>
+              </select>
+              <select id="legend-align">
+                <option value="auto" selected>Auto</option>
+                <option value="left">Left</option>
+                <option value="center">Center</option>
+                <option value="right">Right</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Series Management -->
+          <div class="control-section">
+            <h3>📊 Data Series</h3>
+            <div id="series-list"></div>
+            <button class="add-series-btn" id="add-series">+ Add Series</button>
+          </div>
+
+          <!-- Chart Options -->
+          <div class="control-section">
+            <h3>⚙️ Options</h3>
+            <div class="options-grid">
+              <label class="checkbox-group">
+                <input type="checkbox" id="show-data-labels"> Data Labels
+              </label>
+              <label class="checkbox-group">
+                <input type="checkbox" id="stack-series"> Stack Series
+              </label>
+              <label class="checkbox-group">
+                <input type="checkbox" id="show-x-lines"> X Grid
+              </label>
+              <label class="checkbox-group">
+                <input type="checkbox" id="show-y-lines"> Y Grid
+              </label>
+            </div>
+            <div class="range-control">
+              <label>Chart Size: <span id="chart-size-value">600</span>px</label>
+              <input type="range" id="chart-size" min="300" max="800" step="50" value="600">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Global state
+      let chart = null;
+      let isMinimized = false;
+      let currentChartType = 'line';
+      let seriesData = [
+        { name: 'Sales', type: 'bar', data: [120, 200, 150, 80, 70, 110], color: '#5470c6', visible: true },
+        { name: 'Profit', type: 'line', data: [20, 50, 30, 15, 10, 25], color: '#91cc75', visible: true }
+      ];
+      let categories = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
+
+      // Load ECharts and initialize
+      function initializePlugin() {
+        const script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js';
+        script.onload = function() {
+          setupEventListeners();
+          initializeChart();
+          renderSeriesList();
+          console.log('✅ Plugin initialized successfully');
+        };
+        script.onerror = function() {
+          console.error('❌ Failed to load ECharts');
+          document.getElementById('chart-container').innerHTML = 
+            '<div style="display: flex; align-items: center; justify-content: center; height: 100%; color: #666;">ECharts failed to load</div>';
+        };
+        document.head.appendChild(script);
+      }
+
+      function setupEventListeners() {
+        // Chart type buttons
+        document.querySelectorAll('.chart-type-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            document.querySelectorAll('.chart-type-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            currentChartType = btn.dataset.type;
+            updateChart();
+          });
+        });
+
+        // Title controls
+        document.getElementById('chart-title').addEventListener('input', updateChart);
+        document.getElementById('show-title').addEventListener('change', updateChart);
+        document.getElementById('title-align').addEventListener('change', updateChart);
+        document.getElementById('title-position').addEventListener('change', updateChart);
+
+        // Legend controls
+        document.getElementById('show-legend').addEventListener('change', updateChart);
+        document.getElementById('legend-position').addEventListener('change', updateChart);
+        document.getElementById('legend-align').addEventListener('change', updateChart);
+
+        // Options
+        document.getElementById('show-data-labels').addEventListener('change', updateChart);
+        document.getElementById('stack-series').addEventListener('change', updateChart);
+        document.getElementById('show-x-lines').addEventListener('change', updateChart);
+        document.getElementById('show-y-lines').addEventListener('change', updateChart);
+
+        // Chart size
+        document.getElementById('chart-size').addEventListener('input', (e) => {
+          document.getElementById('chart-size-value').textContent = e.target.value;
+          updateChartSize(parseInt(e.target.value));
+        });
+
+        // Header buttons
+        document.getElementById('export-btn').addEventListener('click', exportChart);
+        document.getElementById('minimize-btn').addEventListener('click', toggleMinimize);
+        
+        // Add series button
+        document.getElementById('add-series').addEventListener('click', addSeries);
+      }
+
+      function initializeChart() {
+        if (typeof echarts === 'undefined') return;
+        
+        const container = document.getElementById('chart-container');
+        chart = echarts.init(container, null, { renderer: 'svg' });
+        updateChart();
+        
+        // Handle window resize
+        window.addEventListener('resize', () => {
+          if (chart && !isMinimized) {
+            chart.resize();
+          }
+        });
+      }
+
+      function generateChartOption() {
+        const title = document.getElementById('chart-title').value;
+        const showTitle = document.getElementById('show-title').checked;
+        const titleAlign = document.getElementById('title-align').value;
+        const titlePosition = document.getElementById('title-position').value;
+        
+        const showLegend = document.getElementById('show-legend').checked;
+        const legendPosition = document.getElementById('legend-position').value;
+        const legendAlign = document.getElementById('legend-align').value;
+        
+        const showDataLabels = document.getElementById('show-data-labels').checked;
+        const stackSeries = document.getElementById('stack-series').checked;
+        const showXLines = document.getElementById('show-x-lines').checked;
+        const showYLines = document.getElementById('show-y-lines').checked;
+
+        const option = {
+          title: showTitle ? {
+            show: true,
+            text: title,
+            left: titleAlign,
+            top: titlePosition === 'bottom' ? 'bottom' : 'top',
+            textStyle: { fontSize: 16, fontWeight: 'bold' }
+          } : { show: false },
+          
+          legend: showLegend ? {
+            show: true,
+            [legendPosition]: 10,
+            orient: legendPosition === 'left' || legendPosition === 'right' ? 'vertical' : 'horizontal',
+            align: legendAlign === 'auto' ? 'auto' : legendAlign
+          } : { show: false },
+          
+          grid: {
+            left: legendPosition === 'left' ? '15%' : '10%',
+            right: legendPosition === 'right' ? '15%' : '10%',
+            top: legendPosition === 'top' ? '25%' : '20%',
+            bottom: legendPosition === 'bottom' ? '20%' : '15%'
+          },
+          
+          tooltip: {
+            trigger: 'axis',
+            axisPointer: { type: 'cross' }
+          }
+        };
+
+        // Handle pie and doughnut charts
+        if (currentChartType === 'pie' || currentChartType === 'doughnut') {
+          const firstSeries = seriesData.find(s => s.visible);
+          if (firstSeries) {
+            const pieData = firstSeries.data.map((value, i) => ({
+              value,
+              name: categories[i] || `Item ${i + 1}`,
+              itemStyle: { color: seriesData[i % seriesData.length]?.color || firstSeries.color }
+            }));
+            
+            option.series = [{
+              type: 'pie',
+              radius: currentChartType === 'doughnut' ? ['40%', '70%'] : '60%',
+              center: ['50%', '50%'],
+              data: pieData,
+              label: { show: showDataLabels, formatter: '{b}: {c} ({d}%)' }
+            }];
+          }
+          return option;
+        }
+
+        // Handle other chart types
+        const isHorizontalBar = currentChartType === 'horizontalBar';
+        
+        option.xAxis = {
+          type: isHorizontalBar ? 'value' : 'category',
+          data: isHorizontalBar ? undefined : categories,
+          splitLine: { show: showXLines }
+        };
+        
+        option.yAxis = {
+          type: isHorizontalBar ? 'category' : 'value',
+          data: isHorizontalBar ? categories : undefined,
+          splitLine: { show: showYLines }
+        };
+
+        option.series = seriesData
+          .filter(series => series.visible)
+          .map((series) => {
+            let seriesType = currentChartType !== 'mixed' ? currentChartType : series.type;
+            const echartsType = seriesType === 'horizontalBar' ? 'bar' : 
+                              seriesType === 'area' ? 'line' : seriesType;
+            
+            const seriesConfig = {
+              name: series.name,
+              type: echartsType,
+              data: series.data,
+              itemStyle: { color: series.color },
+              lineStyle: { color: series.color },
+              label: { show: showDataLabels, position: echartsType === 'line' ? 'top' : 'inside' }
+            };
+            
+            if (echartsType === 'line' || seriesType === 'area') {
+              seriesConfig.smooth = false;
+              if (seriesType === 'area') {
+                seriesConfig.areaStyle = { color: series.color, opacity: 0.6 };
+              }
+            }
+            
+            if (stackSeries && (echartsType === 'bar' || seriesType === 'area' || echartsType === 'line')) {
+              seriesConfig.stack = 'total';
+            }
+            
+            return seriesConfig;
+          });
+
+        return option;
+      }
+
+      function updateChart() {
+        if (!chart) return;
+        const option = generateChartOption();
+        chart.setOption(option, true);
+      }
+
+      function updateChartSize(size) {
+        const container = document.getElementById('chart-container');
+        container.style.maxWidth = `${size}px`;
+        container.style.maxHeight = `${size * 0.75}px`;
+        if (chart) {
+          setTimeout(() => chart.resize(), 100);
+        }
+      }
+
+      function renderSeriesList() {
+        const container = document.getElementById('series-list');
+        container.innerHTML = '';
+        
+        seriesData.forEach((series, index) => {
+          const seriesDiv = document.createElement('div');
+          seriesDiv.className = 'series-item';
+          seriesDiv.innerHTML = `
+            <div class="series-controls">
+              <input type="text" value="${series.name}" onchange="updateSeriesName(${index}, this.value)">
+              <input type="color" value="${series.color}" onchange="updateSeriesColor(${index}, this.value)">
+              <select onchange="updateSeriesType(${index}, this.value)">
+                <option value="line" ${series.type === 'line' ? 'selected' : ''}>Line</option>
+                <option value="bar" ${series.type === 'bar' ? 'selected' : ''}>Bar</option>
+                <option value="horizontalBar" ${series.type === 'horizontalBar' ? 'selected' : ''}>H-Bar</option>
+                <option value="area" ${series.type === 'area' ? 'selected' : ''}>Area</option>
+                <option value="scatter" ${series.type === 'scatter' ? 'selected' : ''}>Scatter</option>
+              </select>
+              <button onclick="removeSeries(${index})">×</button>
+            </div>
+            <textarea class="series-data" placeholder="[10, 20, 30, 40, 50]" 
+              onchange="updateSeriesData(${index}, this.value)">${JSON.stringify(series.data)}</textarea>
+            <div class="series-options">
+              <label class="checkbox-group">
+                <input type="checkbox" ${series.visible ? 'checked' : ''} 
+                  onchange="updateSeriesVisible(${index}, this.checked)"> Visible
+              </label>
+            </div>
+          `;
+          container.appendChild(seriesDiv);
+        });
+      }
+
+      function addSeries() {
+        const colors = ['#5470c6', '#91cc75', '#fac858', '#ee6666', '#73c0de', '#3ba272', '#fc8452', '#9a60b4'];
+        seriesData.push({
+          name: `Series ${seriesData.length + 1}`,
+          type: 'line',
+          data: [10, 20, 30, 40, 50, 60],
+          color: colors[seriesData.length % colors.length],
+          visible: true
+        });
+        renderSeriesList();
+        updateChart();
+      }
+
+      function removeSeries(index) {
+        seriesData.splice(index, 1);
+        renderSeriesList();
+        updateChart();
+      }
+
+      function updateSeriesName(index, name) {
+        seriesData[index].name = name;
+        updateChart();
+      }
+
+      function updateSeriesColor(index, color) {
+        seriesData[index].color = color;
+        updateChart();
+      }
+
+      function updateSeriesType(index, type) {
+        seriesData[index].type = type;
+        updateChart();
+      }
+
+      function updateSeriesData(index, dataStr) {
+        try {
+          const data = JSON.parse(dataStr);
+          seriesData[index].data = data;
+          updateChart();
+        } catch (e) {
+          console.warn('Invalid JSON data');
+        }
+      }
+
+      function updateSeriesVisible(index, visible) {
+        seriesData[index].visible = visible;
+        updateChart();
+      }
+
+      function toggleMinimize() {
+        isMinimized = !isMinimized;
+        const mainContent = document.getElementById('main-content');
+        const minimizeBtn = document.getElementById('minimize-btn');
+        const exportBtn = document.getElementById('export-btn');
+        
+        if (isMinimized) {
+          mainContent.classList.add('hidden');
+          minimizeBtn.textContent = '🔼 Maximize';
+          exportBtn.disabled = true;
+          
+          // Send message to Figma to resize
+          if (typeof parent !== 'undefined' && parent !== window) {
+            parent.postMessage({
+              pluginMessage: { type: 'minimize' }
+            }, '*');
+          }
+        } else {
+          mainContent.classList.remove('hidden');
+          minimizeBtn.textContent = '🔽 Minimize';
+          exportBtn.disabled = false;
+          
+          // Send message to Figma to resize
+          if (typeof parent !== 'undefined' && parent !== window) {
+            parent.postMessage({
+              pluginMessage: { type: 'maximize' }
+            }, '*');
+          }
+          
+          // Resize chart after maximizing
+          setTimeout(() => {
+            if (chart) chart.resize();
+          }, 100);
+        }
+      }
+
+      function exportChart() {
+        if (!chart) return;
+        
+        try {
+          const svgData = chart.renderToSVGString();
+          const container = document.getElementById('chart-container');
+          const width = container.offsetWidth;
+          const height = container.offsetHeight;
+          
+          if (typeof parent !== 'undefined' && parent !== window) {
+            parent.postMessage({
+              pluginMessage: {
+                type: 'insert-chart',
+                svgData,
+                width,
+                height,
+                chartType: currentChartType + ' (enhanced)'
+              }
+            }, '*');
+            console.log('📤 Chart exported to Figma');
+          } else {
+            navigator.clipboard.writeText(svgData).then(() => {
+              alert('SVG copied to clipboard!');
+            }).catch(() => {
+              console.log('SVG Data:', svgData.substring(0, 100) + '...');
+              alert('Chart data logged to console');
+            });
+          }
+        } catch (error) {
+          console.error('Export error:', error);
+          alert('Export failed: ' + error.message);
+        }
+      }
+
+      // Initialize the plugin
+      initializePlugin();
+    </script>
   </body>
 </html>

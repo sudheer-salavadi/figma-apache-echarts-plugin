@@ -268,15 +268,78 @@
       .range-control input[type="range"] {
         width: 100%;
       }
+
+      .pie-slice-item {
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        padding: 8px;
+        margin-bottom: 8px;
+        background: white;
+      }
+
+      .pie-slice-controls {
+        display: flex;
+        gap: 4px;
+        align-items: center;
+        margin-bottom: 4px;
+        width: 100%;
+      }
+
+      .pie-slice-controls input[type="text"] {
+        flex: 2;
+        min-width: 0;
+        padding: 4px;
+        font-size: 12px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+      }
+
+      .pie-slice-controls input[type="number"] {
+        width: 50px;
+        flex-shrink: 0;
+        padding: 4px;
+        font-size: 12px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+      }
+
+      .pie-slice-controls input[type="color"] {
+        width: 24px;
+        height: 24px;
+        flex-shrink: 0;
+        border: none;
+        border-radius: 4px;
+      }
+
+      .pie-slice-controls button {
+        width: 24px;
+        height: 24px;
+        flex-shrink: 0;
+        padding: 0;
+        font-size: 14px;
+        line-height: 1;
+        background: white;
+        border: 1px solid #000;
+        border-radius: 4px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .items-center {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
     </style>
   </head>
   <body>
     <div class="main-container">
       <!-- Header -->
       <div class="header">
-        <h2>📊 Echarts Builder For Figma</h2>
+        <h2 class="items-center"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"><path fill="#000" d="M12 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12a12 12 0 0 0 12-12A12 12 0 0 0 12 0m-.792 5.307c2.192-.025 4.366 1.134 5.43 3.304c.909 1.852.878 3.61-.098 5.645c-.477.995-.487 1.06-.241 1.578c.214.452.727.779 1.221.779c.454 0 1.15-.586 1.252-1.054c.1-.454-.193-1.118-.607-1.377a10 10 0 0 1-.393-.255c-.129-.1.42-.38.741-.38c.687 0 1.247.526 1.375 1.29c.055.333.134.422.44.502c.859.222 1.297 1.451.755 2.116c-.22.27-.23.271-.305.042c-.267-.801-.666-1.12-1.403-1.12c-.319 0-.572.128-1.098.556c-1.006.82-1.866 1.303-2.907 1.632c-1.276.384-2.752.478-4.086.156c-2.162-.431-4.232-2.11-5.252-4.257C4.758 11.782 5.135 9 7.033 7.077a5.92 5.92 0 0 1 4.175-1.77" stroke-width="0.6" stroke="#000"/></svg> Echarts Builder For Figma</h2>
         <div class="header-buttons">
-          <button id="export-btn" class="btn btn-primary">Export to Figma</button>
+          <button id="export-btn" class="btn btn-primary">Export SVG to Canvas</button>
           <button id="minimize-btn" class="btn btn-outline">🔽 Collapse</button>
         </div>
       </div>
@@ -376,6 +439,20 @@
                 <input type="checkbox" id="show-y-lines"> Y Grid
               </label>
             </div>
+            <div style="margin-top: 8px;">
+              <label style="display: block; font-size: 12px; margin-bottom: 4px;">X-Axis Time Scale</label>
+              <select id="time-scale" style="width: 100%; padding: 6px; border: 1px solid #ccc; border-radius: 4px;">
+                <option value="custom">Custom Labels</option>
+                <option value="minute">Minute</option>
+                <option value="hour">Hour</option>
+                <option value="daily">Daily</option>
+                <option value="weekly">Weekly</option>
+                <option value="bi-weekly">Bi-Weekly</option>
+                <option value="monthly">Monthly</option>
+                <option value="quarterly">Quarterly</option>
+                <option value="yearly">Yearly</option>
+              </select>
+            </div>
           </div>
 
           <!-- Chart-Specific Controls -->
@@ -398,18 +475,25 @@
             </div>
           </div>
 
-          <div class="control-section" id="doughnut-controls" style="display: none;">
-            <h3>🍩 Doughnut Options</h3>
-            <div class="grid-2">
-              <div>
-                <label style="display: block; font-size: 12px; margin-bottom: 4px;">Inner Radius (%)</label>
-                <input type="number" id="doughnut-inner-radius" min="10" max="80" value="40" 
-                  style="width: 100%; padding: 6px; border: 1px solid #ccc; border-radius: 4px;">
-              </div>
-              <div>
-                <label style="display: block; font-size: 12px; margin-bottom: 4px;">Outer Radius (%)</label>
-                <input type="number" id="doughnut-outer-radius" min="30" max="90" value="70" 
-                  style="width: 100%; padding: 6px; border: 1px solid #ccc; border-radius: 4px;">
+          <!-- Pie/Doughnut Controls -->
+          <div class="control-section" id="pie-controls" style="display: none;">
+            <h3>🥧 Pie/Doughnut Data</h3>
+            <div id="pie-data-list"></div>
+            <button class="add-series-btn" id="add-pie-slice" style="width: 100%; margin-bottom: 16px;">+ Add Slice</button>
+            
+            <div id="doughnut-options" style="display: none;">
+              <h4 style="font-size: 12px; margin-bottom: 8px;">🍩 Doughnut Options</h4>
+              <div class="grid-2">
+                <div>
+                  <label style="display: block; font-size: 12px; margin-bottom: 4px;">Inner Radius (%)</label>
+                  <input type="number" id="doughnut-inner-radius" min="10" max="80" value="40" 
+                    style="width: 100%; padding: 6px; border: 1px solid #ccc; border-radius: 4px;">
+                </div>
+                <div>
+                  <label style="display: block; font-size: 12px; margin-bottom: 4px;">Outer Radius (%)</label>
+                  <input type="number" id="doughnut-outer-radius" min="30" max="90" value="70" 
+                    style="width: 100%; padding: 6px; border: 1px solid #ccc; border-radius: 4px;">
+                </div>
               </div>
             </div>
           </div>
@@ -459,6 +543,13 @@
         { name: 'Profit', type: 'line', data: [20, 50, 30, 15, 10, 25], color: '#91cc75', visible: true }
       ];
       let categories = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
+      let pieData = [
+        { name: 'Category A', value: 30, color: '#5470c6' },
+        { name: 'Category B', value: 25, color: '#91cc75' },
+        { name: 'Category C', value: 20, color: '#fac858' },
+        { name: 'Category D', value: 15, color: '#ee6666' },
+        { name: 'Category E', value: 10, color: '#73c0de' }
+      ];
 
       // Load ECharts and initialize
       function initializePlugin() {
@@ -468,6 +559,7 @@
           setupEventListeners();
           initializeChart();
           renderSeriesList();
+          renderPieDataList();
           updateChartSpecificControls();
           console.log('✅ Plugin initialized successfully');
         };
@@ -486,6 +578,7 @@
             document.querySelectorAll('.chart-type-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             currentChartType = btn.dataset.type;
+            resetSeriesToChartType();
             updateChartSpecificControls();
             updateChart();
           });
@@ -507,6 +600,7 @@
         document.getElementById('show-y-axis').addEventListener('change', updateChart);
         document.getElementById('show-x-lines').addEventListener('change', updateChart);
         document.getElementById('show-y-lines').addEventListener('change', updateChart);
+        document.getElementById('time-scale').addEventListener('change', updateTimeScale);
 
         // Options
         document.getElementById('show-data-labels').addEventListener('change', updateChart);
@@ -531,6 +625,7 @@
         // Series buttons
         document.getElementById('add-series').addEventListener('click', addSeries);
         document.getElementById('randomize-data').addEventListener('click', randomizeAllData);
+        document.getElementById('add-pie-slice').addEventListener('click', addPieSlice);
       }
 
       function initializeChart() {
@@ -578,22 +673,24 @@
             show: true,
             text: title,
             left: titleAlign,
-            top: titlePosition === 'bottom' ? 'bottom' : 'top',
+            top: titlePosition === 'bottom' ? 'bottom' : 20,
+            bottom: titlePosition === 'bottom' ? 20 : undefined,
             textStyle: { fontSize: 16, fontWeight: 'bold' }
           } : { show: false },
           
           legend: showLegend ? {
             show: true,
-            [legendPosition]: 10,
+            [legendPosition]: 20,
             orient: legendPosition === 'left' || legendPosition === 'right' ? 'vertical' : 'horizontal',
             align: legendAlign === 'auto' ? 'auto' : legendAlign
           } : { show: false },
           
           grid: {
-            left: legendPosition === 'left' ? '15%' : '10%',
-            right: legendPosition === 'right' ? '15%' : '10%',
-            top: legendPosition === 'top' ? '25%' : '20%',
-            bottom: legendPosition === 'bottom' ? '20%' : '15%'
+            left: legendPosition === 'left' ? '18%' : '12%',
+            right: legendPosition === 'right' ? '18%' : '12%',
+            top: showTitle && titlePosition === 'top' ? '28%' : (legendPosition === 'top' ? '25%' : '22%'),
+            bottom: showTitle && titlePosition === 'bottom' ? '28%' : (legendPosition === 'bottom' ? '22%' : '18%'),
+            containLabel: true
           },
           
           tooltip: {
@@ -604,29 +701,51 @@
 
         // Handle pie and doughnut charts
         if (currentChartType === 'pie' || currentChartType === 'doughnut') {
-          const firstSeries = seriesData.find(s => s.visible);
-          if (firstSeries) {
-            const pieData = firstSeries.data.map((value, i) => ({
-              value,
-              name: categories[i] || `Item ${i + 1}`,
-              itemStyle: { color: seriesData[i % seriesData.length]?.color || firstSeries.color }
-            }));
-            
-            let radius;
-            if (currentChartType === 'doughnut') {
-              radius = [`${doughnutInnerRadius}%`, `${doughnutOuterRadius}%`];
-            } else {
-              radius = '60%';
-            }
-            
-            option.series = [{
-              type: 'pie',
-              radius: radius,
-              center: ['50%', '50%'],
-              data: pieData,
-              label: { show: showDataLabels, formatter: '{b}: {c} ({d}%)' }
-            }];
+          let radius;
+          if (currentChartType === 'doughnut') {
+            radius = [`${doughnutInnerRadius}%`, `${doughnutOuterRadius}%`];
+          } else {
+            radius = '60%';
           }
+          
+          const chartPieData = pieData.map(slice => ({
+            name: slice.name,
+            value: slice.value,
+            itemStyle: { color: slice.color }
+          }));
+          
+          // Calculate pie chart center based on title and legend positions
+          let centerY = '50%';
+          if (showTitle && titlePosition === 'top') {
+            centerY = '55%';
+          } else if (showTitle && titlePosition === 'bottom') {
+            centerY = '45%';
+          }
+          if (showLegend && legendPosition === 'top') {
+            centerY = '55%';
+          } else if (showLegend && legendPosition === 'bottom') {
+            centerY = '45%';
+          }
+
+          option.series = [{
+            type: 'pie',
+            radius: radius,
+            center: ['50%', centerY],
+            data: chartPieData,
+            label: { 
+              show: showDataLabels, 
+              formatter: '{b}: {c} ({d}%)',
+              fontSize: 12
+            },
+            emphasis: {
+              itemStyle: {
+                shadowBlur: 10,
+                shadowOffsetX: 0,
+                shadowColor: 'rgba(0, 0, 0, 0.5)'
+              }
+            }
+          }];
+          
           return option;
         }
 
@@ -734,14 +853,167 @@
       function updateChartSpecificControls() {
         // Hide all specific controls first
         document.getElementById('bar-controls').style.display = 'none';
-        document.getElementById('doughnut-controls').style.display = 'none';
+        document.getElementById('pie-controls').style.display = 'none';
+        document.getElementById('doughnut-options').style.display = 'none';
+        
+        // Hide/show sections based on chart type
+        const isXYChart = !['pie', 'doughnut'].includes(currentChartType);
+        
+        // Hide series and axis controls for pie/doughnut charts
+        const allSections = document.querySelectorAll('.control-section');
+        allSections.forEach(section => {
+          const h3 = section.querySelector('h3');
+          if (h3) {
+            if (h3.textContent.includes('📊 Data Series') || h3.textContent.includes('📐 Axis Controls')) {
+              section.style.display = isXYChart ? 'block' : 'none';
+            }
+          }
+        });
         
         // Show relevant controls based on chart type
         if (currentChartType === 'bar' || currentChartType === 'horizontalBar') {
           document.getElementById('bar-controls').style.display = 'block';
-        } else if (currentChartType === 'doughnut') {
-          document.getElementById('doughnut-controls').style.display = 'block';
+        } else if (currentChartType === 'pie' || currentChartType === 'doughnut') {
+          document.getElementById('pie-controls').style.display = 'block';
+          if (currentChartType === 'doughnut') {
+            document.getElementById('doughnut-options').style.display = 'block';
+          }
+          renderPieDataList();
         }
+      }
+
+      function resetSeriesToChartType() {
+        // Don't reset for mixed type - it's meant to have different types
+        if (currentChartType === 'mixed') return;
+        
+        // Reset all series to match the new chart type
+        seriesData.forEach(series => {
+          series.type = currentChartType;
+        });
+        
+        // Re-render series list to show updated types
+        renderSeriesList();
+      }
+
+      function generateTimeLabels(scale, count = 6) {
+        const now = new Date();
+        const labels = [];
+        
+        switch (scale) {
+          case 'minute':
+            for (let i = 0; i < count; i++) {
+              const time = new Date(now.getTime() + i * 60000); // 1 minute intervals
+              labels.push(time.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }));
+            }
+            break;
+          case 'hour':
+            for (let i = 0; i < count; i++) {
+              const time = new Date(now.getTime() + i * 3600000); // 1 hour intervals
+              labels.push(time.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }));
+            }
+            break;
+          case 'daily':
+            for (let i = 0; i < count; i++) {
+              const date = new Date(now.getTime() + i * 86400000); // 1 day intervals
+              labels.push(date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+            }
+            break;
+          case 'weekly':
+            for (let i = 0; i < count; i++) {
+              const date = new Date(now.getTime() + i * 604800000); // 1 week intervals
+              labels.push(`Week ${i + 1}`);
+            }
+            break;
+          case 'bi-weekly':
+            for (let i = 0; i < count; i++) {
+              const date = new Date(now.getTime() + i * 1209600000); // 2 week intervals
+              labels.push(date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+            }
+            break;
+          case 'monthly':
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            for (let i = 0; i < count; i++) {
+              const monthIndex = (now.getMonth() + i) % 12;
+              const year = now.getFullYear() + Math.floor((now.getMonth() + i) / 12);
+              labels.push(`${months[monthIndex]} ${year}`);
+            }
+            break;
+          case 'quarterly':
+            for (let i = 0; i < count; i++) {
+              const quarter = Math.floor((now.getMonth() + i * 3) / 3) % 4 + 1;
+              const year = now.getFullYear() + Math.floor((now.getMonth() + i * 3) / 12);
+              labels.push(`Q${quarter} ${year}`);
+            }
+            break;
+          case 'yearly':
+            for (let i = 0; i < count; i++) {
+              labels.push(`${now.getFullYear() + i}`);
+            }
+            break;
+          default:
+            return ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun']; // Default custom labels
+        }
+        
+        return labels;
+      }
+
+      function updateTimeScale() {
+        const scale = document.getElementById('time-scale').value;
+        if (scale !== 'custom') {
+          categories = generateTimeLabels(scale, categories.length);
+          updateChart();
+        }
+      }
+
+      function renderPieDataList() {
+        const container = document.getElementById('pie-data-list');
+        container.innerHTML = '';
+        
+        pieData.forEach((slice, index) => {
+          const sliceDiv = document.createElement('div');
+          sliceDiv.className = 'pie-slice-item';
+          sliceDiv.innerHTML = `
+            <div class="pie-slice-controls">
+              <input type="text" value="${slice.name}" onchange="updatePieName(${index}, this.value)" placeholder="Category name">
+              <input type="number" value="${slice.value}" onchange="updatePieValue(${index}, parseInt(this.value))" min="0" placeholder="Value">
+              <input type="color" value="${slice.color}" onchange="updatePieColor(${index}, this.value)">
+              <button onclick="removePieSlice(${index})">×</button>
+            </div>
+          `;
+          container.appendChild(sliceDiv);
+        });
+      }
+
+      function addPieSlice() {
+        const colors = ['#5470c6', '#91cc75', '#fac858', '#ee6666', '#73c0de', '#3ba272', '#fc8452', '#9a60b4'];
+        pieData.push({
+          name: `Category ${pieData.length + 1}`,
+          value: 10,
+          color: colors[pieData.length % colors.length]
+        });
+        renderPieDataList();
+        updateChart();
+      }
+
+      function removePieSlice(index) {
+        pieData.splice(index, 1);
+        renderPieDataList();
+        updateChart();
+      }
+
+      function updatePieName(index, name) {
+        pieData[index].name = name;
+        updateChart();
+      }
+
+      function updatePieValue(index, value) {
+        pieData[index].value = value;
+        updateChart();
+      }
+
+      function updatePieColor(index, color) {
+        pieData[index].color = color;
+        updateChart();
       }
 
       function renderSeriesList() {

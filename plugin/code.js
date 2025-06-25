@@ -30,11 +30,11 @@ figma.ui.onmessage = async (msg) => {
         break;
       
       case 'minimize':
-        figma.ui.resize(1200, 60); // Minimize to header height
+        figma.ui.resize(1024, 60); // Minimize to header height
         break;
         
       case 'maximize':
-        figma.ui.resize(1200, 800); // Restore to full height
+        figma.ui.resize(1024, 768); // Restore to full height
         break;
       
       case 'cancel':

@@ -1,6 +1,8 @@
-# 📊 Echarts Builder For Figma
+# Echarts Builder For Figma
 
-A powerful Figma plugin for creating interactive charts using Apache ECharts with a comprehensive visual editor.
+Figma plugin to build real Apache ECharts with a visual editor and export them as SVGs to the canvas.
+
+
 
 ## ✨ Features
 
@@ -134,4 +136,3 @@ MIT License - feel free to use and modify for your projects.
 
 - **ECharts** - Apache ECharts team for the excellent charting library
 - **Figma** - For the powerful plugin API
-- Built with ❤️ for the design community

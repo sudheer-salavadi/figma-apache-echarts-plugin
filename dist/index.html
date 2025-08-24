@@ -361,13 +361,19 @@
         <div class="controls">
           <!-- Chart Types -->
           <div class="control-section">
-            <h3>📈 Chart Type</h3>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <h3 style="margin: 0;">📈 Chart Type</h3>
+              <label class="checkbox-group" style="padding: 4px 8px; background: #f0f0f0; color: #333; border: 1px solid #ccc; border-radius: 4px; cursor: pointer; font-size: 11px;">
+                <input type="checkbox" id="dark-mode" > 🌙 Dark Mode
+              </label>
+            </div>
             <div class="chart-types">
-              <button class="chart-type-btn active" data-type="line">📈 Line</button>
+              <button class="chart-type-btn" data-type="line">📈 Line</button>
               <button class="chart-type-btn" data-type="bar">📊 Column</button>
               <button class="chart-type-btn" data-type="horizontalBar"><span class="rotated-chart">📊</span> Bar</button>
               <button class="chart-type-btn" data-type="area">🏞️ Area</button>
               <button class="chart-type-btn" data-type="scatter">᠅ Scatter</button>
+              <button class="chart-type-btn active" data-type="mixed">🔀 Mixed</button>
               <button class="chart-type-btn" data-type="pie">◔ Pie</button>
               <button class="chart-type-btn" data-type="doughnut">◎ Donut</button>
             </div>
@@ -419,11 +425,13 @@
 
           <!-- Series Management -->
           <div class="control-section">
-            <h3>📊 Data Series</h3>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <h3 style="margin: 0;">📊 Data Series</h3>
+              <button id="randomize-data" style="padding: 4px 8px; background: #f0f0f0; color: #333; border: 1px solid #ccc; border-radius: 4px; cursor: pointer; font-size: 11px;">🎲 Randomize</button>
+            </div>
             <div id="series-list"></div>
             <div style="display: flex; gap: 8px;">
               <button class="add-series-btn" id="add-series" style="flex: 1;">+ Add Series</button>
-              <button class="add-series-btn" id="randomize-data" style="flex: 1; background: #f0f0f0; color: #333;">🎲 Randomize</button>
             </div>
           </div>
 
@@ -445,18 +453,31 @@
               </label>
             </div>
             <div style="margin-top: 8px;">
-              <label style="display: block; font-size: 12px; margin-bottom: 4px;">X-Axis Time Scale</label>
-              <select id="time-scale" style="width: 100%; padding: 6px; border: 1px solid #ccc; border-radius: 4px;">
-                <option value="custom">Custom Labels</option>
-                <option value="minute">Minute</option>
-                <option value="hour">Hour</option>
-                <option value="daily">Daily</option>
-                <option value="weekly">Weekly</option>
-                <option value="bi-weekly">Bi-Weekly</option>
-                <option value="monthly">Monthly</option>
-                <option value="quarterly">Quarterly</option>
-                <option value="yearly">Yearly</option>
-              </select>
+              <label style="display: block; font-size: 12px; margin-bottom: 4px;">X-Axis</label>
+              <div style="display: flex; gap: 4px;">
+                <button id="decrease-x-points-time" style="padding: 4px 8px; border: 1px solid #ccc; background: white; border-radius: 4px; cursor: pointer;">-</button>
+                <select id="time-scale" style="flex: 1; padding: 6px; border: 1px solid #ccc; border-radius: 4px;">                
+                  <option value="minute">Minute</option>
+                  <option value="hour">Hour</option>
+                  <option value="daily">Daily</option>
+                  <option value="weekly">Weekly</option>
+                  <option value="bi-weekly">Bi-Weekly</option>
+                  <option value="monthly" selected>Monthly</option>
+                  <option value="quarterly">Quarterly</option>
+                  <option value="yearly">Yearly</option>
+                  <option value="custom">Custom Labels</option>
+                </select>
+                <button id="increase-x-points-time" style="padding: 4px 8px; border: 1px solid #ccc; background: white; border-radius: 4px; cursor: pointer;">+</button>
+              </div>
+            </div>
+            <div id="custom-x-axis-controls" style="margin-top: 8px; display: none;">
+              <label style="display: block; font-size: 12px; margin-bottom: 4px;">Custom X-Axis Labels</label>
+              <div style="display: flex; gap: 4px; margin-bottom: 4px;">
+                <button id="decrease-x-points" style="padding: 4px 8px; border: 1px solid #ccc; background: white; border-radius: 4px; cursor: pointer;">-</button>
+                <input type="text" id="custom-x-labels" placeholder="Jan,Feb,Mar,Apr,May,Jun" style="flex: 1; padding: 6px; border: 1px solid #ccc; border-radius: 4px; font-size: 12px;">
+                <button id="increase-x-points" style="padding: 4px 8px; border: 1px solid #ccc; background: white; border-radius: 4px; cursor: pointer;">+</button>
+              </div>
+              <div style="font-size: 11px; color: #666; margin-bottom: 4px;">Enter comma-separated values or use +/- to adjust points</div>
             </div>
           </div>
 
@@ -516,9 +537,6 @@
               <label class="checkbox-group">
                 <input type="checkbox" id="smooth-line"> Smooth Lines
               </label>
-              <label class="checkbox-group">
-                <input type="checkbox" id="dark-mode"> 🌙 Dark Mode
-              </label>
             </div>
             <div class="grid-2">
               <div>
@@ -541,11 +559,11 @@
       // Global state
       let chart = null;
       let isMinimized = false;
-      let currentChartType = 'line';
+      let currentChartType = 'mixed';
       let isDarkMode = false;
       let seriesData = [
-        { name: 'Sales', type: 'bar', data: [120, 200, 150, 80, 70, 110], color: '#5470c6', visible: true },
-        { name: 'Profit', type: 'line', data: [20, 50, 30, 15, 10, 25], color: '#91cc75', visible: true }
+        { name: 'Sales', type: 'bar', data: [120, 200, 150, 80, 70, 110], color: '#5470c6', visible: true, pointColors: [] },
+        { name: 'Profit', type: 'line', data: [20, 50, 30, 15, 10, 25], color: '#91cc75', visible: true, pointColors: [] }
       ];
       let categories = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
       let pieData = [
@@ -566,6 +584,7 @@
           renderSeriesList();
           renderPieDataList();
           updateChartSpecificControls();
+          updateChartTypeUI(); // Set initial chart type UI based on data
           console.log('✅ Plugin initialized successfully');
         };
         script.onerror = function() {
@@ -583,7 +602,12 @@
             document.querySelectorAll('.chart-type-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             currentChartType = btn.dataset.type;
-            resetSeriesToChartType();
+            
+            // Don't reset series types for mixed - allow individual types to remain
+            if (currentChartType !== 'mixed') {
+              resetSeriesToChartType();
+            }
+            
             updateChartSpecificControls();
             updateChart();
           });
@@ -606,6 +630,11 @@
         document.getElementById('show-x-lines').addEventListener('change', updateChart);
         document.getElementById('show-y-lines').addEventListener('change', updateChart);
         document.getElementById('time-scale').addEventListener('change', updateTimeScale);
+        document.getElementById('custom-x-labels').addEventListener('input', updateCustomXLabels);
+        document.getElementById('increase-x-points').addEventListener('click', increaseXAxisPoints);
+        document.getElementById('decrease-x-points').addEventListener('click', decreaseXAxisPoints);
+        document.getElementById('increase-x-points-time').addEventListener('click', increaseXAxisPointsTime);
+        document.getElementById('decrease-x-points-time').addEventListener('click', decreaseXAxisPointsTime);
 
         // Options
         document.getElementById('show-data-labels').addEventListener('change', updateChart);
@@ -779,11 +808,23 @@
             const echartsType = seriesType === 'horizontalBar' ? 'bar' : 
                               seriesType === 'area' ? 'line' : seriesType;
             
+            // Check if series has individual point colors
+            const hasPointColors = series.pointColors && series.pointColors.length > 0;
+            let chartData = series.data;
+            
+            if (hasPointColors) {
+              // Convert data to objects with individual colors
+              chartData = series.data.map((value, index) => ({
+                value: value,
+                itemStyle: { color: series.pointColors[index] || series.color }
+              }));
+            }
+            
             const seriesConfig = {
               name: series.name,
               type: echartsType,
-              data: series.data,
-              itemStyle: { color: series.color },
+              data: chartData,
+              itemStyle: hasPointColors ? {} : { color: series.color },
               lineStyle: { color: series.color },
               label: { show: showDataLabels, position: echartsType === 'line' ? 'top' : 'inside' }
             };
@@ -822,6 +863,26 @@
         if (!chart) return;
         const option = generateChartOption();
         chart.setOption(option, true);
+        updateChartTypeUI();
+      }
+
+      function updateChartTypeUI() {
+        // Check if we have mixed chart types
+        const visibleSeries = seriesData.filter(series => series.visible);
+        const uniqueTypes = [...new Set(visibleSeries.map(series => series.type))];
+        
+        // Auto-select Mixed if we have different chart types
+        if (uniqueTypes.length > 1) {
+          currentChartType = 'mixed';
+        } else if (uniqueTypes.length === 1 && currentChartType === 'mixed') {
+          // If all series are the same type and we're currently on mixed, switch to that type
+          currentChartType = uniqueTypes[0];
+        }
+        
+        // Update UI buttons
+        document.querySelectorAll('.chart-type-btn').forEach(btn => {
+          btn.classList.toggle('active', btn.dataset.type === currentChartType);
+        });
       }
 
       function updateChartDimensions() {
@@ -964,10 +1025,187 @@
 
       function updateTimeScale() {
         const scale = document.getElementById('time-scale').value;
-        if (scale !== 'custom') {
+        const customControls = document.getElementById('custom-x-axis-controls');
+        
+        if (scale === 'custom') {
+          customControls.style.display = 'block';
+          // Update the input field with current categories
+          document.getElementById('custom-x-labels').value = categories.join(',');
+        } else {
+          customControls.style.display = 'none';
           categories = generateTimeLabels(scale, categories.length);
+          // Update all series data to match new category count
+          seriesData.forEach(series => {
+            if (series.data.length !== categories.length) {
+              if (series.data.length < categories.length) {
+                // Extend series data
+                const lastValue = series.data[series.data.length - 1] || 50;
+                while (series.data.length < categories.length) {
+                  series.data.push(Math.floor(lastValue + (Math.random() - 0.5) * 20));
+                  // Extend point colors if they exist
+                  if (series.pointColors && series.pointColors.length > 0) {
+                    series.pointColors.push(series.color);
+                  }
+                }
+              } else {
+                // Truncate series data
+                series.data = series.data.slice(0, categories.length);
+                // Truncate point colors if they exist
+                if (series.pointColors && series.pointColors.length > 0) {
+                  series.pointColors = series.pointColors.slice(0, categories.length);
+                }
+              }
+            }
+          });
+          renderSeriesList();
           updateChart();
         }
+      }
+
+      function updateCustomXLabels() {
+        const input = document.getElementById('custom-x-labels').value;
+        if (input.trim()) {
+          const newCategories = input.split(',').map(label => label.trim()).filter(label => label);
+          if (newCategories.length > 0) {
+            categories = newCategories;
+            // Adjust series data to match new category count
+            seriesData.forEach(series => {
+              if (series.data.length !== categories.length) {
+                if (series.data.length < categories.length) {
+                  // Extend series data
+                  const lastValue = series.data[series.data.length - 1] || 50;
+                  while (series.data.length < categories.length) {
+                    series.data.push(Math.floor(lastValue + (Math.random() - 0.5) * 20));
+                    // Extend point colors if they exist
+                    if (series.pointColors && series.pointColors.length > 0) {
+                      series.pointColors.push(series.color);
+                    }
+                  }
+                } else {
+                  // Truncate series data
+                  series.data = series.data.slice(0, categories.length);
+                  // Truncate point colors if they exist
+                  if (series.pointColors && series.pointColors.length > 0) {
+                    series.pointColors = series.pointColors.slice(0, categories.length);
+                  }
+                }
+              }
+            });
+            renderSeriesList();
+            updateChart();
+          }
+        }
+      }
+
+      function increaseXAxisPoints() {
+        const currentCount = categories.length;
+        const timeScale = document.getElementById('time-scale').value;
+        
+        if (timeScale === 'custom') {
+          // For custom labels, add generic point
+          categories.push(`Point ${currentCount + 1}`);
+          document.getElementById('custom-x-labels').value = categories.join(',');
+        } else {
+          // For time scales, regenerate with more points
+          categories = generateTimeLabels(timeScale, currentCount + 1);
+        }
+        
+        // Extend all series data
+        seriesData.forEach(series => {
+          const lastValue = series.data[series.data.length - 1] || 50;
+          series.data.push(Math.floor(lastValue + (Math.random() - 0.5) * 20));
+          // Extend point colors if they exist
+          if (series.pointColors && series.pointColors.length > 0) {
+            series.pointColors.push(series.color);
+          }
+        });
+        
+        renderSeriesList();
+        updateChart();
+      }
+
+      function decreaseXAxisPoints() {
+        if (categories.length <= 1) return; // Don't allow removing all points
+        
+        const currentCount = categories.length;
+        const timeScale = document.getElementById('time-scale').value;
+        
+        if (timeScale === 'custom') {
+          // For custom labels, remove last point
+          categories.pop();
+          document.getElementById('custom-x-labels').value = categories.join(',');
+        } else {
+          // For time scales, regenerate with fewer points
+          categories = generateTimeLabels(timeScale, currentCount - 1);
+        }
+        
+        // Truncate all series data
+        seriesData.forEach(series => {
+          series.data.pop();
+          // Truncate point colors if they exist
+          if (series.pointColors && series.pointColors.length > 0) {
+            series.pointColors.pop();
+          }
+        });
+        
+        renderSeriesList();
+        updateChart();
+      }
+
+      function increaseXAxisPointsTime() {
+        const currentCount = categories.length;
+        const timeScale = document.getElementById('time-scale').value;
+        
+        if (timeScale === 'custom') {
+          // Switch to custom mode
+          categories.push(`Point ${currentCount + 1}`);
+          document.getElementById('custom-x-labels').value = categories.join(',');
+          updateTimeScale(); // This will show custom controls
+        } else {
+          // For time scales, regenerate with more points
+          categories = generateTimeLabels(timeScale, currentCount + 1);
+        }
+        
+        // Extend all series data
+        seriesData.forEach(series => {
+          const lastValue = series.data[series.data.length - 1] || 50;
+          series.data.push(Math.floor(lastValue + (Math.random() - 0.5) * 20));
+          // Extend point colors if they exist
+          if (series.pointColors && series.pointColors.length > 0) {
+            series.pointColors.push(series.color);
+          }
+        });
+        
+        renderSeriesList();
+        updateChart();
+      }
+
+      function decreaseXAxisPointsTime() {
+        if (categories.length <= 1) return; // Don't allow removing all points
+        
+        const currentCount = categories.length;
+        const timeScale = document.getElementById('time-scale').value;
+        
+        if (timeScale === 'custom') {
+          // For custom labels, remove last point
+          categories.pop();
+          document.getElementById('custom-x-labels').value = categories.join(',');
+        } else {
+          // For time scales, regenerate with fewer points
+          categories = generateTimeLabels(timeScale, currentCount - 1);
+        }
+        
+        // Truncate all series data
+        seriesData.forEach(series => {
+          series.data.pop();
+          // Truncate point colors if they exist
+          if (series.pointColors && series.pointColors.length > 0) {
+            series.pointColors.pop();
+          }
+        });
+        
+        renderSeriesList();
+        updateChart();
       }
 
       function renderPieDataList() {
@@ -1021,6 +1259,23 @@
         updateChart();
       }
 
+      function generatePointColorInputs(series, seriesIndex) {
+        const inputs = [];
+        for (let i = 0; i < series.data.length; i++) {
+          const color = series.pointColors[i] || series.color;
+          const label = categories[i] || `Point ${i + 1}`;
+          inputs.push(`
+            <div style="text-align: center;">
+              <div style="font-size: 9px; margin-bottom: 2px; overflow: hidden; white-space: nowrap;">${label}</div>
+              <input type="color" value="${color}" 
+                onchange="updatePointColor(${seriesIndex}, ${i}, this.value)"
+                style="width: 28px; height: 20px; border: none; border-radius: 4px; cursor: pointer;">
+            </div>
+          `);
+        }
+        return inputs.join('');
+      }
+
       function renderSeriesList() {
         const container = document.getElementById('series-list');
         container.innerHTML = '';
@@ -1031,7 +1286,7 @@
           seriesDiv.innerHTML = `
             <div class="series-controls">
               <input type="text" value="${series.name}" onchange="updateSeriesName(${index}, this.value)">
-              <input type="color" value="${series.color}" onchange="updateSeriesColor(${index}, this.value)">
+              <input type="color" value="${series.color}" onchange="updateSeriesColor(${index}, this.value)" title="Default series color">
               <select onchange="updateSeriesType(${index}, this.value)">
                 <option value="line" ${series.type === 'line' ? 'selected' : ''}>Line</option>
                 <option value="bar" ${series.type === 'bar' ? 'selected' : ''}>Bar</option>
@@ -1039,7 +1294,7 @@
                 <option value="area" ${series.type === 'area' ? 'selected' : ''}>Area</option>
                 <option value="scatter" ${series.type === 'scatter' ? 'selected' : ''}>Scatter</option>
               </select>
-              <button onclick="randomizeSeries(${index})" title="Randomize data">🎲</button>
+              <button onclick="togglePointColors(${index})" title="Toggle individual point colors">🎨</button>
               <button onclick="removeSeries(${index})">×</button>
             </div>
             <textarea class="series-data" placeholder="[10, 20, 30, 40, 50]" 
@@ -1050,6 +1305,12 @@
                   onchange="updateSeriesVisible(${index}, this.checked)"> Visible
               </label>
             </div>
+            <div id="point-colors-${index}" class="point-colors" style="display: none; margin-top: 4px;">
+              <div style="font-size: 11px; margin-bottom: 4px; color: #666;">Individual Point Colors:</div>
+              <div class="point-colors-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(30px, 1fr)); gap: 4px;">
+                ${generatePointColorInputs(series, index)}
+              </div>
+            </div>
           `;
           container.appendChild(seriesDiv);
         });
@@ -1057,12 +1318,20 @@
 
       function addSeries() {
         const colors = ['#5470c6', '#91cc75', '#fac858', '#ee6666', '#73c0de', '#3ba272', '#fc8452', '#9a60b4'];
+        
+        // Use current chart type, but default to 'line' if mixed or pie/doughnut
+        let newSeriesType = currentChartType;
+        if (currentChartType === 'mixed' || currentChartType === 'pie' || currentChartType === 'doughnut') {
+          newSeriesType = 'line'; // Default fallback for mixed/pie charts
+        }
+        
         seriesData.push({
           name: `Series ${seriesData.length + 1}`,
-          type: 'line',
-          data: [10, 20, 30, 40, 50, 60],
+          type: newSeriesType,
+          data: generateRandomData(categories.length, 10, 100),
           color: colors[seriesData.length % colors.length],
-          visible: true
+          visible: true,
+          pointColors: []
         });
         renderSeriesList();
         updateChart();
@@ -1086,7 +1355,7 @@
 
       function updateSeriesType(index, type) {
         seriesData[index].type = type;
-        updateChart();
+        updateChart(); // This will call updateChartTypeUI() automatically
       }
 
       function updateSeriesData(index, dataStr) {
@@ -1101,12 +1370,34 @@
 
       function updateSeriesVisible(index, visible) {
         seriesData[index].visible = visible;
-        updateChart();
+        updateChart(); // This will call updateChartTypeUI() automatically
       }
 
-      function randomizeSeries(index) {
-        seriesData[index].data = generateRandomData(categories.length);
-        renderSeriesList();
+
+      function togglePointColors(seriesIndex) {
+        const pointColorsDiv = document.getElementById(`point-colors-${seriesIndex}`);
+        const isHidden = pointColorsDiv.style.display === 'none';
+        
+        if (isHidden) {
+          // Initialize point colors if not set
+          const series = seriesData[seriesIndex];
+          if (!series.pointColors || series.pointColors.length === 0) {
+            series.pointColors = new Array(series.data.length).fill('').map(() => series.color);
+          }
+          pointColorsDiv.style.display = 'block';
+          // Refresh the point color inputs
+          const grid = pointColorsDiv.querySelector('.point-colors-grid');
+          grid.innerHTML = generatePointColorInputs(series, seriesIndex);
+        } else {
+          pointColorsDiv.style.display = 'none';
+        }
+      }
+
+      function updatePointColor(seriesIndex, pointIndex, color) {
+        if (!seriesData[seriesIndex].pointColors) {
+          seriesData[seriesIndex].pointColors = new Array(seriesData[seriesIndex].data.length).fill(seriesData[seriesIndex].color);
+        }
+        seriesData[seriesIndex].pointColors[pointIndex] = color;
         updateChart();
       }
 

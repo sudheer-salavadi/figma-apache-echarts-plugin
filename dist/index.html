@@ -688,6 +688,10 @@
         const legendPosition = document.getElementById('legend-position').value;
         const legendAlign = document.getElementById('legend-align').value;
         
+        // Get current chart dimensions
+        const chartWidth = parseInt(document.getElementById('chart-width').value);
+        const chartHeight = parseInt(document.getElementById('chart-height').value);
+        
         const showXAxis = document.getElementById('show-x-axis').checked;
         const showYAxis = document.getElementById('show-y-axis').checked;
         const showDataLabels = document.getElementById('show-data-labels').checked;
@@ -714,16 +718,22 @@
           
           legend: showLegend ? {
             show: true,
-            [legendPosition]: 20,
+            [legendPosition]: legendPosition === 'top' ? 15 : (legendPosition === 'bottom' ? 15 : 15),
+            left: legendPosition === 'top' || legendPosition === 'bottom' ? 'center' : undefined,
             orient: legendPosition === 'left' || legendPosition === 'right' ? 'vertical' : 'horizontal',
-            align: legendAlign === 'auto' ? 'auto' : legendAlign
+            align: legendAlign === 'auto' ? 'auto' : legendAlign,
+            itemWidth: 14,
+            itemHeight: 14,
+            textStyle: { fontSize: 12 }
           } : { show: false },
           
           grid: {
-            left: legendPosition === 'left' ? '18%' : '12%',
-            right: legendPosition === 'right' ? '18%' : '12%',
-            top: showTitle && titlePosition === 'top' ? '28%' : (legendPosition === 'top' ? '25%' : '22%'),
-            bottom: showTitle && titlePosition === 'bottom' ? '28%' : (legendPosition === 'bottom' ? '22%' : '18%'),
+            left: legendPosition === 'left' ? Math.max(100, chartWidth * 0.15) : Math.max(60, chartWidth * 0.08),
+            right: legendPosition === 'right' ? Math.max(100, chartWidth * 0.15) : Math.max(60, chartWidth * 0.08),
+            top: showTitle && titlePosition === 'top' ? Math.max(80, chartHeight * 0.15) : 
+                 (legendPosition === 'top' ? Math.max(60, chartHeight * 0.12) : Math.max(40, chartHeight * 0.08)),
+            bottom: showTitle && titlePosition === 'bottom' ? Math.max(80, chartHeight * 0.15) : 
+                    (legendPosition === 'bottom' ? Math.max(60, chartHeight * 0.12) : Math.max(40, chartHeight * 0.08)),
             containLabel: true
           },
           

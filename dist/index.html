@@ -561,6 +561,7 @@
       let isMinimized = false;
       let currentChartType = 'mixed';
       let isDarkMode = false;
+      let colorMemory = [];
       let seriesData = [
         { name: 'Sales', type: 'bar', data: [120, 200, 150, 80, 70, 110], color: '#5470c6', visible: true, pointColors: [] },
         { name: 'Profit', type: 'line', data: [20, 50, 30, 15, 10, 25], color: '#91cc75', visible: true, pointColors: [] }
@@ -574,11 +575,75 @@
         { name: 'Category E', value: 10, color: '#73c0de' }
       ];
 
+      // Color memory functions
+      function saveColorMemory() {
+        try {
+          localStorage.setItem('figma-echarts-colors', JSON.stringify(colorMemory));
+        } catch (e) {
+          console.warn('Could not save color memory:', e);
+        }
+      }
+
+      function loadColorMemory() {
+        try {
+          const saved = localStorage.getItem('figma-echarts-colors');
+          if (saved) {
+            colorMemory = JSON.parse(saved);
+          }
+        } catch (e) {
+          console.warn('Could not load color memory:', e);
+          colorMemory = [];
+        }
+      }
+
+      function addToColorMemory(color) {
+        // Remove color if it already exists
+        const index = colorMemory.indexOf(color);
+        if (index > -1) {
+          colorMemory.splice(index, 1);
+        }
+        
+        // Add color to front of array
+        colorMemory.unshift(color);
+        
+        // Keep only last 12 colors
+        if (colorMemory.length > 12) {
+          colorMemory = colorMemory.slice(0, 12);
+        }
+        
+        saveColorMemory();
+      }
+
+      function getNextColor() {
+        const defaultColors = ['#5470c6', '#91cc75', '#fac858', '#ee6666', '#73c0de', '#3ba272', '#fc8452', '#9a60b4'];
+        
+        // Get current colors in use
+        const currentColors = seriesData.map(s => s.color);
+        
+        // Try remembered colors first (skip colors already in use)
+        for (const color of colorMemory) {
+          if (!currentColors.includes(color)) {
+            return color;
+          }
+        }
+        
+        // Fall back to default colors (skip colors already in use)
+        for (const color of defaultColors) {
+          if (!currentColors.includes(color)) {
+            return color;
+          }
+        }
+        
+        // If all colors are in use, return most recent from memory or first default
+        return colorMemory.length > 0 ? colorMemory[0] : defaultColors[0];
+      }
+
       // Load ECharts and initialize
       function initializePlugin() {
         const script = document.createElement('script');
         script.src = 'https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js';
         script.onload = function() {
+          loadColorMemory(); // Load saved colors
           setupEventListeners();
           initializeChart();
           renderSeriesList();
@@ -1266,6 +1331,7 @@
 
       function updatePieColor(index, color) {
         pieData[index].color = color;
+        addToColorMemory(color); // Remember this color
         updateChart();
       }
 
@@ -1327,19 +1393,20 @@
       }
 
       function addSeries() {
-        const colors = ['#5470c6', '#91cc75', '#fac858', '#ee6666', '#73c0de', '#3ba272', '#fc8452', '#9a60b4'];
-        
         // Use current chart type, but default to 'line' if mixed or pie/doughnut
         let newSeriesType = currentChartType;
         if (currentChartType === 'mixed' || currentChartType === 'pie' || currentChartType === 'doughnut') {
           newSeriesType = 'line'; // Default fallback for mixed/pie charts
         }
         
+        // Get color from memory or use intelligent fallback
+        const newColor = getNextColor();
+        
         seriesData.push({
           name: `Series ${seriesData.length + 1}`,
           type: newSeriesType,
           data: generateRandomData(categories.length, 10, 100),
-          color: colors[seriesData.length % colors.length],
+          color: newColor,
           visible: true,
           pointColors: []
         });
@@ -1360,6 +1427,7 @@
 
       function updateSeriesColor(index, color) {
         seriesData[index].color = color;
+        addToColorMemory(color); // Remember this color
         updateChart();
       }
 
@@ -1408,6 +1476,7 @@
           seriesData[seriesIndex].pointColors = new Array(seriesData[seriesIndex].data.length).fill(seriesData[seriesIndex].color);
         }
         seriesData[seriesIndex].pointColors[pointIndex] = color;
+        addToColorMemory(color); // Remember this color
         updateChart();
       }
 
